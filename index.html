@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Custom Tailwind Configuration for Theme Variables and Animations -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // PRIMARY: Emerald-500 for accents, buttons, highlights
+                        'primary':'maroon' , 
+                        'primary-dark': '#059669', // Emerald-600
+                        // SECONDARY: Slate-100 for alternating section backgrounds
+                        'secondary': '#f1f5f9', 
+                        // LIGHT BG: Slate-50 for the lightest section background
+                        'light-bg': '#f8fafc', 
+                        // DARK BG: Slate-800 for the footer
+                        'dark-bg': '#1e293b', 
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { 'box-shadow': '0 0 0 0px rgba(16, 185, 129, 0.7)' },
+                            '50%': { 'box-shadow': '0 0 15px 6px rgba(16, 185, 129, 0.5)' },
+                        },
+                        'ping-slow': {
+                            '0%': { 'transform': 'scale(1)', 'opacity': '0.7' },
+                            '100%': { 'transform': 'scale(1.5)', 'opacity': '0' },
+                        },
+                        'fade-slide-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'spin-slow': {
+                            'from': { transform: 'rotate(0deg)' },
+                            'to': { transform: 'rotate(360deg)' },
+                        },
+                        'blink-caret': {
+                            '0%, 100%': { 'border-color': 'transparent' },
+                            '50%': { 'border-color': 'rgb(16, 185, 129)' }, 
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
+                        'ping-slow': 'ping-slow 4s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        'fade-slide-up': 'fade-slide-up 1s ease-out forwards',
+                        'spin-slow': 'spin-slow 60s linear infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Smooth Scroll Behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Base Styles */
+        body {
+            font-family: Geneva;
+            background-color: theme('colors.light-bg');
+            color: theme('colors.dark-bg');
+        }
+
+        /* Hero Title: Changed from gradient to a solid color for better visibility */
+        .hero-title-gradient {
+            /* Now a solid, elegant color for high contrast */
+            color: theme('colors.dark-bg'); 
+            
+            /* Removed gradient properties for a single color look */
+            /* background-image: linear-gradient(90deg, theme('colors.primary'), theme('colors.dark-bg')); */
+            /* -webkit-background-clip: text; */
+            /* -webkit-text-fill-color: transparent; */
+            /* background-clip: text; */
+            
+            /* Subtle shadow retained for depth */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); 
+        }
+
+        /* Initial state for Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Nav Link Underline */
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: theme('colors.primary');
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Skill Bar Initial State */
+        .skill-bar-fill {
+            transition: width 1.5s ease-out;
+        }
+
+        /* Geometric Background Element for Hero */
+        .hero-bg-shape {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: theme('colors.primary') / 0.1;
+            opacity: 0.1;
+            filter: blur(50px);
+            border-radius: 50%;
+            z-index: 0;
+            top: 10%;
+            left: 5%;
+            animation: spin-slow 90s linear infinite;
+        }
+
+        /* Project Card Hover effect */
+        .project-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25); /* Emerald-tinted shadow */
+            transform: translateY(-5px) scale(1.01);
+        }
+    </style>
+</head>
+
+<body class="bg-light-bg text-slate-800 min-h-screen">
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md shadow-lg transition duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 text-3xl font-extrabold text-dark-bg">
+                    <span class="text-primary">Portfolio.</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#hero" class="nav-link text-gray-700 hover:text-primary transition duration-200 active">Home</a>
+                    <a href="#about" class="nav-link text-gray-700 hover:text-primary transition duration-200">About</a>
+                    <a href="#skills" class="nav-link text-gray-700 hover:text-primary transition duration-200">Skills</a>
+                    <a href="#projects" class="nav-link text-gray-700 hover:text-primary transition duration-200">Projects</a>
+                    <a href="#contact" class="nav-link text-gray-700 hover:text-primary transition duration-200">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10">
+        
+        <!-- Hero Section -->
+        <section id="hero" class="relative min-h-screen pt-40 pb-20 flex items-center justify-center text-center px-4 overflow-hidden bg-light-bg">
+            <!-- Geometric Background Element 1 (Subtle Movement) -->
+            <div class="hero-bg-shape absolute w-72 h-72 rounded-full bg-primary/20 top-10 left-5 animate-spin-slow" style="animation-delay: 0s;"></div>
+            <!-- Geometric Background Element 2 -->
+            <div class="hero-bg-shape absolute w-96 h-96 rounded-full bg-primary-dark/10 bottom-10 right-10 animate-spin-slow" style="animation-duration: 45s;"></div>
+
+            <div class="space-y-6 animate-fade-slide-up relative z-20" style="animation-delay: 0.1s;">
+                <p class="text-xl font-semibold text-primary">Hello, my name is</p>
+                <h1 class="text-7xl sm:text-8xl lg:text-9xl font-extrabold tracking-tight">
+                    <span class="hero-title-gradient">Dua Nasir</span>
+                </h1>
+                <h2 class="text-3xl sm:text-4xl font-light h-10 overflow-hidden">
+                    I build the web as a <span id="typed-text" class="font-medium text-dark-bg"></span>
+                    <span id="typed-cursor" class="inline-block w-2 h-8 bg-primary animate-[blink-caret_0.75s_step-end_infinite] ml-1"></span>
+                </h2>
+                <div class="flex justify-center space-x-6 pt-6">
+                    <a href="#projects" class="inline-flex items-center space-x-2 px-8 py-4 border border-transparent text-lg font-bold rounded-xl shadow-2xl text-white bg-primary hover:bg-primary-dark transition duration-300 transform hover:scale-[1.05]">
+                        <span>View Work</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#contact" class="inline-flex items-center space-x-2 px-8 py-4 border-2 border-primary text-lg font-bold rounded-xl text-primary hover:bg-primary/10 transition duration-300 transform hover:scale-[1.05]">
+                        <span>Contact Me</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="reveal relative py-20 px-4 bg-secondary">
+            <!-- Diagonal/Wavy Separator (Optional: can be done with SVGs, but we use a simple color change for this effect) -->
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-5xl font-extrabold text-center mb-16">About <span class="text-primary">Me</span></h2>
+                <div class="flex flex-col md:flex-row items-start gap-16">
+                    
+                    <!-- Animated Profile Picture (Layered and Offset) -->
+                    <div class="w-full md:w-1/3 flex justify-center md:justify-end -mt-10 mb-8 md:mb-0">
+                        <div id="profile-card" class="relative w-64 h-64 md:w-80 md:h-80 flex-shrink-0 transform transition duration-300 ease-out hover:scale-[1.05]">
+                            
+                            <!-- Background Frame (Primary Color Accent) -->
+                            <div class="absolute inset-0 -top-4 -left-4 -right-4 -bottom-4 rounded-3xl bg-primary/20 z-0 transform rotate-[-5deg]"></div>
+
+                            <!-- Main Image Container -->
+                            <div class="relative w-full h-full rounded-3xl overflow-hidden border-4 border-primary shadow-2xl animate-pulse-glow z-10 bg-white">
+                                <!-- Placeholder image -->
+                                <img src="Image/img.png" alt="Profile Picture" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-2/3 space-y-8 text-xl text-slate-700">
+                        <p class="font-medium">I am a passionate **Full-Stack Developer** focused on creating robust, scalable, and delightful user experiences.</p>
+                        <p>With over five years of industry experience, my core expertise lies in the React ecosystem (Next.js, TypeScript) and high-performance server-side APIs (Node.js/Express). I believe great software is a blend of clean architecture, pixel-perfect design, and obsessive attention to detail.</p>
+                        <p>I thrive in collaborative environments, always pushing the boundaries of what's possible on the web while ensuring accessibility and maintainability remain paramount.</p>
+                        <a href="#" class="inline-flex items-center space-x-2 px-6 py-3 border-2 border-primary text-base font-medium rounded-full text-primary hover:bg-primary hover:text-white transition duration-300 mt-4 shadow-lg hover:shadow-xl">
+                            <span>Download Resume</span>
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="reveal py-20 px-4 bg-light-bg">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-5xl font-extrabold text-center mb-16">Core <span class="text-primary">Competencies</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+                    
+                    <!-- Skill Bar: Frontend -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-lg font-semibold">
+                            <span>HTML,CSS & Javascript</span>
+                            <span class="skill-percent text-primary">95%</span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-3">
+                            <div class="skill-bar-fill bg-primary h-3 rounded-full shadow-lg" data-percent="90" style="width: 0;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Bar: Backend -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-lg font-semibold">
+                            <span>Node.js, Express & Serverless</span>
+                            <span class="skill-percent text-primary">70%</span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-3">
+                            <div class="skill-bar-fill bg-primary h-3 rounded-full shadow-lg" data-percent="75" style="width: 0;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Bar: Styling -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-lg font-semibold">
+                            <span>Tailwind CSS & Modern UI/UX</span>
+                            <span class="skill-percent text-primary">85%</span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-3">
+                            <div class="skill-bar-fill bg-primary h-3 rounded-full shadow-lg" data-percent="95" style="width: 0;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Bar: Databases -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-lg font-semibold">
+                            <span>RESTful APIs, PostgreSQL</span>
+                            <span class="skill-percent text-primary">80%</span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-3">
+                            <div class="skill-bar-fill bg-primary h-3 rounded-full shadow-lg" data-percent="80" style="width: 0;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Icon Grid for Secondary Skills - Made larger and more impactful -->
+                <div class="flex justify-center flex-wrap gap-10 mt-20 p-6 bg-white rounded-2xl shadow-xl">
+                    <div class="text-center group p-3">
+                        <i data-lucide="git-branch" class="w-12 h-12 text-gray-500 group-hover:text-primary transition duration-300 transform group-hover:scale-110"></i>
+                        <span class="block text-sm font-medium mt-1">Git</span>
+                    </div>
+                    <div class="text-center group p-3">
+                        <i data-lucide="figma" class="w-12 h-12 text-gray-500 group-hover:text-primary transition duration-300 transform group-hover:scale-110"></i>
+                        <span class="block text-sm font-medium mt-1">Figma</span>
+                    </div>
+                    <div class="text-center group p-3">
+                        <i data-lucide="server" class="w-12 h-12 text-gray-500 group-hover:text-primary transition duration-300 transform group-hover:scale-110"></i>
+                        <span class="block text-sm font-medium mt-1">Node</span>
+                    </div>
+                    <div class="text-center group p-3">
+                        <i data-lucide="box" class="w-12 h-12 text-gray-500 group-hover:text-primary transition duration-300 transform group-hover:scale-110"></i>
+                        <span class="block text-sm font-medium mt-1">Docker</span>
+                    </div>
+                    <div class="text-center group p-3">
+                        <i data-lucide="shield-half" class="w-12 h-12 text-gray-500 group-hover:text-primary transition duration-300 transform group-hover:scale-110"></i>
+                        <span class="block text-sm font-medium mt-1">Auth0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="reveal py-20 px-4 bg-secondary">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-5xl font-extrabold text-center mb-16">Selected <span class="text-primary">Projects</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    
+                    <!-- Project Card 1 (Glassmorphic look with lift) -->
+                    <div class="project-card relative bg-white/70 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden group transform transition duration-500 hover:scale-[1.03] hover:shadow-primary-dark/40 hover:ring-2 ring-primary">
+                        <img src="Image/Ecommerce.png" alt="E-Commerce Project" class="h-48 w-full object-cover transition duration-500 group-hover:scale-110">
+                        <div class="p-6 space-y-3">
+                            <h3 class="text-2xl font-bold text-dark-bg">E-Commerce Platform</h3>
+                            <p class="text-gray-600 text-base">An e-commerce website is an online platform that enables the buying and selling of products and services directly over the internet.
+                            It functions as a virtual storefront, add items to a shopping cart, and securely process payments.</p>
+                            <div class="flex space-x-4 pt-4">
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="eye" class="w-5 h-5"></i><span>Live Demo</span>
+                                </a>
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="github" class="w-5 h-5"></i><span>Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="project-card relative bg-white/70 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden group transform transition duration-500 hover:scale-[1.03] hover:shadow-primary-dark/40 hover:ring-2 ring-primary">
+                        <img src="Image/calculator.png" alt="Analytics Dashboard" class="h-48 w-full object-cover transition duration-500 group-hover:scale-110">
+                        <div class="p-6 space-y-3">
+                            <h3 class="text-2xl font-bold text-dark-bg">Calculator Project</h3>
+                            <p class="text-gray-600 text-base">A Developed a functional calculator that handles chained operations and complex mathematical expressions using native JavaScript logic for accuracy.</p>
+                            <div class="flex space-x-4 pt-4">
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="eye" class="w-5 h-5"></i><span>Live Demo</span>
+                                </a>
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="github" class="w-5 h-5"></i><span>Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card relative bg-white/70 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden group transform transition duration-500 hover:scale-[1.03] hover:shadow-primary-dark/40 hover:ring-2 ring-primary">
+                        <img src="Image/portfolio.png" alt="Microservice API" class="h-48 w-full object-cover transition duration-500 group-hover:scale-110">
+                        <div class="p-6 space-y-3">
+                            <h3 class="text-2xl font-bold text-dark-bg">Portfolio Website</h3>
+                            <p class="text-gray-600 text-base">Designed and developed a fully responsive, mobile-first professional showcase, ensuring fast load times and clean, accessible UI/UX across all device sizes.</p>
+                            <div class="flex space-x-4 pt-4">
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="eye" class="w-5 h-5"></i><span>Live Demo</span>
+                                </a>
+                                <a href="#" target="_blank" class="text-primary font-semibold hover:text-primary-dark transition duration-200 flex items-center space-x-1">
+                                    <i data-lucide="github" class="w-5 h-5"></i><span>Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="reveal py-20 px-4 bg-light-bg">
+            <div class="max-w-xl mx-auto">
+                <h2 class="text-5xl font-extrabold text-center mb-12">Get In <span class="text-primary">Touch</span></h2>
+                
+                <form id="contact-form" class="bg-white p-8 rounded-2xl shadow-3xl shadow-gray-300/50 space-y-6">
+                    <div class="space-y-2">
+                        <label for="name" class="block text-sm font-medium text-slate-700">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your Name" required class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-primary focus:border-primary transition duration-300 bg-gray-50">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Your Email" required class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-primary focus:border-primary transition duration-300 bg-gray-50">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="message" class="block text-sm font-medium text-slate-700">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Your Message" required class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-primary focus:border-primary transition duration-300 bg-gray-50"></textarea>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center items-center space-x-2 px-4 py-4 border border-transparent text-lg font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition duration-300 transform hover:scale-[1.01] shadow-xl hover:shadow-2xl">
+                        <i data-lucide="send" class="w-6 h-6"></i>
+                        <span>Send Message</span>
+                    </button>
+                    <!-- Success/Error Message Box -->
+                    <div id="form-message" class="text-center p-3 rounded-lg hidden"></div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer (New Dark Design) -->
+    <footer class="py-10 bg-dark-bg text-gray-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+            <p class="text-3xl font-extrabold text-primary">JD.dev</p>
+            <div class="flex justify-center space-x-6 text-2xl">
+                <a href="#" target="_blank" class="hover:text-primary transition duration-300"><i data-lucide="github"></i></a>
+                <a href="#" target="_blank" class="hover:text-primary transition duration-300"><i data-lucide="linkedin"></i></a>
+                <a href="#" target="_blank" class="hover:text-primary transition duration-300"><i data-lucide="mail"></i></a>
+            </div>
+            <p class="text-sm pt-4">&copy; 2024 John Doe. All rights reserved. Designed with a passion for modern web standards.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            // --- Global State & Utilities ---
+            const body = document.body;
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+            const profileCard = document.getElementById('profile-card');
+
+            // --- 1. Smooth Page-Load Animation ---
+            body.style.opacity = '0';
+            setTimeout(() => {
+                body.style.transition = 'opacity 1s ease-in-out';
+                body.style.opacity = '1';
+            }, 100); 
+
+            // --- 2. Hero Section: Animated Intro Text (Typing Effect) ---
+            const typedTextElement = document.getElementById('typed-text');
+            const professions = ["Frontend Developer", "UX/UI Designer", "Full-Stack Engineer", "Digital Creator"];
+            let professionIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            const typingSpeed = 100;
+            const deletingSpeed = 60;
+            const delayBetweenProfessions = 2000;
+
+            function type() {
+                const currentProfession = professions[professionIndex];
+                
+                if (isDeleting) {
+                    typedTextElement.textContent = currentProfession.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    typedTextElement.textContent = currentProfession.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let speed = isDeleting ? deletingSpeed : typingSpeed;
+
+                if (!isDeleting && charIndex === currentProfession.length) {
+                    speed = delayBetweenProfessions;
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    professionIndex = (professionIndex + 1) % professions.length;
+                    speed = 500;
+                }
+
+                setTimeout(type, speed);
+            }
+            // Start the typing animation after the hero section is visible
+            setTimeout(type, 1500); 
+
+
+            // --- 3. Section-scroll Reveal Animations (Intersection Observer) ---
+            const revealElements = document.querySelectorAll('.reveal');
+            let skillsAnimated = false;
+
+            const observerCallback = (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        
+                        // Trigger skill bar animation only once
+                        if (entry.target.id === 'skills' && !skillsAnimated) {
+                            animateSkillBars();
+                            skillsAnimated = true;
+                        }
+                    }
+                });
+            };
+
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+            revealElements.forEach(element => observer.observe(element));
+            
+            
+            // --- 4. Animated Skill Bars ---
+            function animateSkillBars() {
+                const skillBars = document.querySelectorAll('.skill-bar-fill');
+                skillBars.forEach(bar => {
+                    const percent = bar.getAttribute('data-percent');
+                    bar.style.width = percent + '%';
+                });
+            }
+
+            // --- 5. Animated Profile Picture: 3D Tilt Effect ---
+            if (profileCard) {
+                const innerImageContainer = profileCard.querySelector('.relative.w-full.h-full');
+                profileCard.addEventListener('mousemove', (e) => {
+                    const rect = profileCard.getBoundingClientRect();
+                    const x = e.clientX - (rect.left + rect.width / 2); 
+                    const y = e.clientY - (rect.top + rect.height / 2);
+                    
+                    const xTilt = y / (rect.height / 2) * -5;
+                    const yTilt = x / (rect.width / 2) * 5;
+
+                    innerImageContainer.style.transform = `perspective(1000px) rotateX(${xTilt}deg) rotateY(${yTilt}deg)`;
+                });
+
+                profileCard.addEventListener('mouseleave', () => {
+                    innerImageContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                });
+            }
+
+            // --- 6. Navigation Active State & Smooth Scroll Highlight ---
+            const updateActiveNav = () => {
+                let current = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100; // Offset by navigation height
+                    
+                    if (window.scrollY >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.href.includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav();
+            
+            // --- 7. Contact Form Submission (Simulation) ---
+            const contactForm = document.getElementById('contact-form');
+            const formMessage = document.getElementById('form-message');
+
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const submitButton = contactForm.querySelector('button');
+                const originalText = 'Send Message';
+                submitButton.innerHTML = `<i data-lucide="loader-circle" class="w-6 h-6 animate-spin"></i><span>Sending...</span>`;
+                submitButton.disabled = true;
+                lucide.createIcons();
+
+                setTimeout(() => {
+                    submitButton.innerHTML = `<i data-lucide="send" class="w-6 h-6"></i><span>${originalText}</span>`;
+                    submitButton.disabled = false;
+                    lucide.createIcons();
+                    
+                    formMessage.textContent = 'Thank you! Your message has been sent successfully.';
+                    formMessage.className = 'text-center p-3 rounded-lg bg-green-100 text-green-700';
+                    formMessage.style.display = 'block';
+
+                    contactForm.reset();
+                    
+                    setTimeout(() => {
+                        formMessage.style.display = 'none';
+                    }, 5000);
+                    
+                }, 1500); 
+            });
+        });
+    </script>
+</body>
+</html>
